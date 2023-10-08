@@ -5,9 +5,8 @@ import { ChangeEvent, useEffect, useState } from "react";
 
 export default function Home() {
   const [input, setInput] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [auth, setAuth] = useState<boolean>(false);
   const [data, setData] = useState<string[]>([]);
-  // const data = fetch(`${process.env.KV_REST_API_URL}`);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -20,10 +19,10 @@ export default function Home() {
   }, []);
 
   const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
-    setInput(e.target.value);
-  };
+    if (e.target.value !== process.env.NEXT_PUBLIC_PASSWORD) return;
 
-  const handleSubmit = () => {
+    setAuth(false);
+
     fetch("/api/post", {
       method: "POST",
       body: JSON.stringify({ item: input }),
@@ -34,7 +33,7 @@ export default function Home() {
 
   return (
     <main className="h-screen w-screen">
-      {password === process.env.NEXT_PUBLIC_PASSWORD ? (
+      {!auth ? (
         <>
           <div>HAPPY BiTHRDAY :&#41;</div>
           <div>
@@ -42,15 +41,23 @@ export default function Home() {
             <h1>Weilin&apos;s Collection of Kinda Hot Things</h1>
           </div>
 
-          <form className="" onSubmit={handleSubmit}>
-            <input onChange={(e) => setInput(e.target.value)} />
+          <form className="" onSubmit={() => setAuth(true)}>
+            <input
+              className="border-2 border-black w-40 py-4 rounded-md px-4"
+              onChange={(e) => setInput(e.target.value)}
+            />
           </form>
+          <div>
+            {data.map((item) => (
+              <p key={item}>{item}</p>
+            ))}
+          </div>
         </>
       ) : (
         <>
           <input
-            className="border-2 border-black w-40 py-4 rounded-md"
-            onChange={(e) => setPassword(e.target.value)}
+            className="border-2 border-black w-40 py-4 rounded-md px-4"
+            onChange={handlePasswordChange}
           />
         </>
       )}
